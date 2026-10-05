@@ -15,12 +15,24 @@ import {
   TrendingUp,
   Lock
 } from 'lucide-react';
-import paymentsData from '../../../data/paymentsData.json';
 import KpiCard from '../../common/KpiCard';
 import { authorizeAction } from '../../../services/adminRbacService';
 
 export default function Payments({ globalSearch, currentRole }) {
-  const [data, setData] = useState(paymentsData);
+  const [data, setData] = useState({
+    summary: {
+      totalRevenue: '₹ 0',
+      monthlyRecurring: '₹ 0',
+      successfulTxns: 0,
+      totalRefunds: '₹ 0'
+    },
+    pricingPlans: [
+      { id: 'standard', name: 'Standard Algo', price: '₹ 999/mo', subscribers: 0, features: ['Up to 3 Active Deployments', '1 Broker Connection', '10 Backtests / Day', 'Real-time Alerts'] },
+      { id: 'pro', name: 'Pro Algo Plan', price: '₹ 1,999/mo', subscribers: 0, features: ['Up to 10 Active Deployments', '3 Broker Connections', 'Unlimited Backtesting', 'Priority Worker Queue'] },
+      { id: 'creator', name: 'Creator Pro', price: '₹ 4,999/mo', subscribers: 0, features: ['Marketplace Publishing', 'Subscriber Analytics', 'Custom Webhooks', 'Dedicated Account Manager'] }
+    ],
+    transactions: []
+  });
   const [searchTerm, setSearchTerm] = useState(globalSearch || '');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [notice, setNotice] = useState('');

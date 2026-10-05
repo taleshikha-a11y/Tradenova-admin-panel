@@ -140,7 +140,16 @@ export default function Incidents({ currentRole }) {
 
       {/* Incidents List */}
       <div className="space-y-4">
-        {incidents.map((inc) => (
+        {incidents.length === 0 ? (
+          <div className="bg-white rounded-3xl p-12 border border-slate-100 shadow-soft text-center">
+            <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto mb-3" />
+            <h3 className="text-base font-bold text-slate-800">All Systems Nominal</h3>
+            <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+              No active operational incidents or service degradations reported.
+            </p>
+          </div>
+        ) : (
+          incidents.map((inc) => (
           <div
             key={inc.id}
             className="bg-white rounded-3xl p-6 border border-slate-100 shadow-soft space-y-4"
@@ -220,7 +229,7 @@ export default function Incidents({ currentRole }) {
               </div>
             </div>
           </div>
-        ))}
+        )))}
       </div>
 
       {/* Broadcast Modal */}

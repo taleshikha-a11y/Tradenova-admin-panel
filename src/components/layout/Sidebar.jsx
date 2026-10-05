@@ -23,12 +23,12 @@ export default function Sidebar({
 }) {
   const menuItems = [
     { id: 'overview', label: 'Dashboard', icon: LayoutGrid },
-    { id: 'users', label: 'Users', icon: Users, badge: '12.4k' },
-    { id: 'strategies', label: 'Strategies', icon: Layers, badge: '342' },
-    { id: 'brokers', label: 'Brokers', icon: Landmark, badge: '6' },
+    { id: 'users', label: 'Users', icon: Users },
+    { id: 'strategies', label: 'Strategies', icon: Layers },
+    { id: 'brokers', label: 'Brokers', icon: Landmark },
     { id: 'orders', label: 'Orders & Trades', icon: ArrowLeftRight },
     { id: 'payments', label: 'Payments', icon: CreditCard },
-    { id: 'incidents', label: 'Incidents', icon: AlertTriangle, badge: '1', alert: true },
+    { id: 'incidents', label: 'Incidents', icon: AlertTriangle },
     { id: 'audit-logs', label: 'Audit Logs', icon: ShieldCheck },
     { id: 'settings', label: 'Settings & Roles', icon: Settings },
   ];

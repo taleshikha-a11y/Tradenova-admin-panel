@@ -15,16 +15,15 @@ import { authorizeModuleAccess } from './services/adminRbacService';
 import rolesData from './data/rolesData.json';
 
 export default function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
   const [searchQuery, setSearchQuery] = useState('');
   const [killSwitchActive, setKillSwitchActive] = useState(false);
 
   // Admin Profile State (Editable from Profile Dropdown)
-  // Default to Super Admin credentials (no generic 'Admin User')
   const [adminProfile, setAdminProfile] = useState({
-    name: 'Vikramaditya Singhania',
-    email: 'superadmin@tradenova.io',
+    name: 'Platform Super Admin',
+    email: 'admin@platform.com',
     phone: '+91 98201 00000',
     address: 'Plot C-59, G Block, BKC Financial Center',
     city: 'Mumbai',

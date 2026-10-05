@@ -16,17 +16,55 @@ import {
   TrendingUp,
   Lock
 } from 'lucide-react';
-import initialOrders from '../../../data/ordersData.json';
 import KpiCard from '../../common/KpiCard';
 import { authorizeAction } from '../../../services/adminRbacService';
+import { getAdminOrders } from '../../../services/apiClient';
 
 export default function Orders({ globalSearch, currentRole }) {
-  const [orders, setOrders] = useState(initialOrders);
+  const [orders, setOrders] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState(globalSearch || '');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [sideFilter, setSideFilter] = useState('ALL');
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [notice, setNotice] = useState('');
+
+  React.useEffect(() => {
+    setIsLoading(true);
+    getAdminOrders({ limit: 100 })
+      .then((res) => {
+        if (res.data?.orders) {
+          const liveOrders = res.data.orders.map((o) => ({
+            id: o.id.slice(0, 8),
+            orderRef: o.brokerOrderId || `ORD-${o.id.slice(0, 6)}`,
+            user: o.user?.name || 'Registered Trader',
+            email: o.user?.email || 'N/A',
+            strategy: o.strategy?.name || 'Manual Trade',
+            broker: o.brokerAccount?.brokerName || 'Zerodha Kite',
+            instrument: o.instrument,
+            exchange: 'NSE',
+            type: o.side === 'BUY' ? 'BUY' : 'SELL',
+            qty: o.quantity || 1,
+            price: Number(o.price || 0),
+            executedPrice: o.filledPrice ? Number(o.filledPrice) : Number(o.price || 0),
+            status: o.status === 'FILLED' ? 'Executed' : o.status === 'PENDING' ? 'Pending' : 'Failed',
+            slippage: '0.00%',
+            isProfit: null,
+            pnl: '—',
+            time: new Date(o.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            correlationId: o.id,
+            errorReason: o.errorMessage || null,
+          }));
+          setOrders(liveOrders);
+        }
+      })
+      .catch((err) => {
+        console.warn('[Admin Orders] Backend error:', err.message);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, []);
 
   const isReadOnly = currentRole?.id === 'ROLE_READ_ONLY';
 
@@ -114,48 +152,48 @@ export default function Orders({ globalSearch, currentRole }) {
         </div>
       )}
 
-      {/* Metrics Row (Clickable Filter Controls) */}
+      {/* Metrics Row (Dynamically calculated from Database) */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <KpiCard
           title="Total Executed Today"
-          value="28,640"
+          value={isLoading ? '...' : orders.filter((o) => o.status === 'Executed').length.toString()}
           icon={CheckCircle2}
           color="blue"
           valueColor="text-slate-900"
           isActive={statusFilter === 'EXECUTED'}
           onClick={() => setStatusFilter((prev) => (prev === 'EXECUTED' ? 'ALL' : 'EXECUTED'))}
-          subtitle="Filter executed"
+          subtitle="Executed orders"
         />
         <KpiCard
           title="Pending Fills"
-          value="1"
+          value={isLoading ? '...' : orders.filter((o) => o.status === 'Pending').length.toString()}
           icon={Clock}
           color="amber"
           valueColor="text-amber-500"
           isActive={statusFilter === 'PENDING'}
           onClick={() => setStatusFilter((prev) => (prev === 'PENDING' ? 'ALL' : 'PENDING'))}
-          subtitle="Filter pending"
+          subtitle="Pending in queue"
         />
         <KpiCard
           title="Rejected / Failed"
-          value="1"
+          value={isLoading ? '...' : orders.filter((o) => o.status === 'Failed').length.toString()}
           icon={AlertTriangle}
           color="rose"
           valueColor="text-rose-500"
           isActive={statusFilter === 'FAILED'}
           onClick={() => setStatusFilter((prev) => (prev === 'FAILED' ? 'ALL' : 'FAILED'))}
-          subtitle="Filter rejected"
+          subtitle="Failed execution"
         />
         <KpiCard
           title="Net Realized P&L"
-          value="+₹ 13,400"
-          change="+24.5%"
+          value="₹ 0.00"
+          change="0.0%"
           icon={TrendingUp}
           color="emerald"
           valueColor="text-emerald-600"
           isActive={statusFilter === 'ALL'}
           onClick={() => setStatusFilter('ALL')}
-          subtitle="Show all orders"
+          subtitle="Realized today"
         />
       </div>
 

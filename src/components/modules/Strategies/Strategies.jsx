@@ -18,16 +18,52 @@ import {
   Users,
   Lock
 } from 'lucide-react';
-import initialStrategies from '../../../data/strategiesData.json';
 import { authorizeAction } from '../../../services/adminRbacService';
+import { getAdminStrategies, updateStrategyStatus as apiUpdateStatus } from '../../../services/apiClient';
 
 export default function Strategies({ globalSearch, currentRole }) {
-  const [strategies, setStrategies] = useState(initialStrategies);
+  const [strategies, setStrategies] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState(globalSearch || '');
   const [categoryFilter, setCategoryFilter] = useState('ALL');
   const [selectedStrategy, setSelectedStrategy] = useState(null);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [notification, setNotification] = useState('');
+
+  React.useEffect(() => {
+    setIsLoading(true);
+    getAdminStrategies()
+      .then((res) => {
+        if (res.data?.strategies) {
+          const mapped = res.data.strategies.map((s) => ({
+            id: s.id,
+            name: s.name,
+            creator: s.user?.name || s.user?.email || 'Platform Creator',
+            category: s.category || 'EQUITY',
+            instruments: s.instruments || ['NIFTY', 'BANKNIFTY'],
+            version: s.version || 'v1.0',
+            status: s.status === 'PUBLISHED' ? 'Active' : s.status,
+            reviewStatus: s.status === 'PUBLISHED' ? 'Approved' : 'Pending Approval',
+            featured: false,
+            subscribers: s._count?.deployments || 0,
+            winRate: s.backtestWinRate ? `${s.backtestWinRate}%` : '—',
+            monthlyReturn: s.expectedReturn ? `${s.expectedReturn}%` : '—',
+            maxDrawdown: s.maxDrawdown ? `${s.maxDrawdown}%` : '—',
+            pricing: s.pricingModel === 'PAID' ? `₹ ${s.priceMonthly}/mo` : 'Free',
+            capitalRequired: s.minCapital ? `₹ ${s.minCapital.toLocaleString()}` : '₹ 10,000',
+            lastUpdated: new Date(s.updatedAt || s.createdAt).toLocaleDateString(),
+            description: s.description || 'Algorithmic strategy deployed on TradeNova platform.',
+          }));
+          setStrategies(mapped);
+        }
+      })
+      .catch((err) => {
+        console.warn('[Strategies] Backend load error:', err.message);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, []);
 
   const isReadOnly = currentRole?.id === 'ROLE_READ_ONLY';
 
@@ -69,7 +105,7 @@ export default function Strategies({ globalSearch, currentRole }) {
     );
   };
 
-  const updateReviewStatus = (id, newStatus) => {
+  const updateReviewStatus = async (id, newStatus) => {
     const auth = authorizeAction(
       currentRole,
       'approve_strategies',
@@ -78,6 +114,11 @@ export default function Strategies({ globalSearch, currentRole }) {
     if (!auth.success) {
       notify(`🔒 ${auth.message}`);
       return;
+    }
+    try {
+      await apiUpdateStatus(id, newStatus === 'Approved' ? 'PUBLISHED' : 'SUSPENDED');
+    } catch (e) {
+      console.warn('[Strategy Update Status] API fallback:', e.message);
     }
     setStrategies((prev) =>
       prev.map((s) => {
@@ -95,6 +136,8 @@ export default function Strategies({ globalSearch, currentRole }) {
     setShowReviewModal(false);
   };
 
+  const pendingCount = strategies.filter((s) => s.reviewStatus === 'Pending Approval').length;
+
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       {/* Title & Stats */}
@@ -109,10 +152,17 @@ export default function Strategies({ globalSearch, currentRole }) {
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="px-3 py-1 bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold rounded-2xl flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-amber-600" />
-            1 Strategy Awaiting Review
-          </span>
+          {pendingCount > 0 ? (
+            <span className="px-3 py-1 bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold rounded-2xl flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-amber-600" />
+              {pendingCount} Strategy Awaiting Review
+            </span>
+          ) : (
+            <span className="px-3 py-1 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold rounded-2xl flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+              All Reviewed & Safe
+            </span>
+          )}
         </div>
       </div>
 
@@ -159,8 +209,21 @@ export default function Strategies({ globalSearch, currentRole }) {
       </div>
 
       {/* Strategy Grid Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {filtered.map((item) => (
+      {isLoading ? (
+        <div className="py-16 text-center text-slate-400">Loading strategies from database...</div>
+      ) : filtered.length === 0 ? (
+        <div className="bg-white rounded-3xl p-12 border border-slate-100 shadow-soft text-center">
+          <Layers className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+          <h3 className="text-base font-bold text-slate-800">No Strategies Found</h3>
+          <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+            {searchTerm || categoryFilter !== 'ALL'
+              ? 'No strategies match your filter criteria.'
+              : 'No algorithmic strategies deployed yet in database.'}
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {filtered.map((item) => (
           <div
             key={item.id}
             className="bg-white rounded-3xl p-6 border border-slate-100 shadow-card hover:shadow-xl hover:-translate-y-1.5 hover:border-indigo-200/80 transition-all duration-300 flex flex-col justify-between relative group"
@@ -258,6 +321,7 @@ export default function Strategies({ globalSearch, currentRole }) {
           </div>
         ))}
       </div>
+      )}
 
       {/* Strategy Review & Inspection Modal */}
       {showReviewModal && selectedStrategy && (

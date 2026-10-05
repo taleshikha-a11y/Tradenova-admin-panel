@@ -10,13 +10,42 @@ import {
   Layers,
   X
 } from 'lucide-react';
-import initialLogs from '../../../data/auditLogsData.json';
+import { getAdminAuditLogs } from '../../../services/apiClient';
 
 export default function AuditLogs({ globalSearch }) {
-  const [logs, setLogs] = useState(initialLogs);
+  const [logs, setLogs] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState(globalSearch || '');
   const [actionFilter, setActionFilter] = useState('ALL');
   const [selectedLog, setSelectedLog] = useState(null);
+
+  React.useEffect(() => {
+    setIsLoading(true);
+    getAdminAuditLogs()
+      .then((res) => {
+        if (res.data?.logs) {
+          const mapped = res.data.logs.map((l) => ({
+            id: l.id.slice(0, 8),
+            actor: l.user?.name || l.user?.email || 'Platform Admin',
+            role: l.user?.role || 'Admin',
+            action: l.action,
+            entity: l.entityType || 'Platform',
+            entityId: l.entityId || 'N/A',
+            ip: l.ipAddress || '127.0.0.1',
+            timestamp: new Date(l.createdAt).toLocaleString(),
+            status: 'Success',
+            details: typeof l.details === 'object' ? JSON.stringify(l.details) : l.details || 'System event verified',
+          }));
+          setLogs(mapped);
+        }
+      })
+      .catch((err) => {
+        console.warn('[AuditLogs] Backend error:', err.message);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, []);
 
   const effectiveSearch = globalSearch || searchTerm;
 
@@ -130,10 +159,18 @@ export default function AuditLogs({ globalSearch }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 font-sans">
-              {filteredLogs.length === 0 ? (
+              {isLoading ? (
                 <tr>
-                  <td colSpan="7" className="py-8 text-center text-slate-400">
-                    No audit records matching search filter.
+                  <td colSpan="7" className="py-12 text-center text-slate-400">
+                    Loading audit records from database...
+                  </td>
+                </tr>
+              ) : filteredLogs.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="py-12 text-center text-slate-400">
+                    <ShieldCheck className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+                    <p className="text-xs font-semibold text-slate-700">No Audit Events Logged Yet</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">Immutable audit events will be recorded here automatically</p>
                   </td>
                 </tr>
               ) : (

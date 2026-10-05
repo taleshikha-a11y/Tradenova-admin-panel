@@ -20,12 +20,13 @@ import {
   Sparkles,
   Lock
 } from 'lucide-react';
-import initialUsers from '../../../data/usersData.json';
 import KpiCard from '../../common/KpiCard';
 import { authorizeAction } from '../../../services/adminRbacService';
+import { getAdminUsers } from '../../../services/apiClient';
 
 export default function Users({ globalSearch, currentRole }) {
-  const [users, setUsers] = useState(initialUsers);
+  const [users, setUsers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState(globalSearch || '');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [roleFilter, setRoleFilter] = useState('ALL');
@@ -34,6 +35,48 @@ export default function Users({ globalSearch, currentRole }) {
   const [actionSuccessMsg, setActionSuccessMsg] = useState('');
   const [userToDelete, setUserToDelete] = useState(null);
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
+
+  // Fetch Live Users from Neon PostgreSQL via Backend API
+  const fetchUsers = () => {
+    setIsLoading(true);
+    getAdminUsers({ limit: 100 })
+      .then((res) => {
+        if (res.data?.users) {
+          const liveUsers = res.data.users.map((u) => ({
+            id: u.id.slice(0, 8),
+            rawId: u.id,
+            name: u.name || 'Anonymous User',
+            email: u.email,
+            phone: u.phone || 'N/A',
+            role: u.role === 'SUPER_ADMIN' ? 'Super Admin' : u.role === 'ADMIN' ? 'Admin' : 'Trader',
+            status: u.status === 'ACTIVE' ? 'Active' : 'Suspended',
+            kycStatus: u.isEmailVerified ? 'Approved' : 'Pending',
+            plan: u.role === 'SUPER_ADMIN' ? 'Enterprise' : 'Standard Algo',
+            planPrice: u.role === 'SUPER_ADMIN' ? 'Admin Plan' : 'Free / Trial',
+            connectedBroker: u._count?.brokerAccounts > 0 ? `${u._count.brokerAccounts} Broker(s)` : 'None',
+            accountType: 'Live Trading',
+            riskProfile: 'Moderate',
+            marginAllocated: '₹ 50,000',
+            winRate: '—',
+            deployedStrategies: 0,
+            lastLogin: 'Active',
+            joinedDate: new Date(u.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+            supportNotes: 'Registered user via backend authentication system.'
+          }));
+          setUsers(liveUsers);
+        }
+      })
+      .catch((err) => {
+        console.error('[Admin Users] Error loading live users:', err.message);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
+  React.useEffect(() => {
+    fetchUsers();
+  }, []);
 
   // Handle local or global search
   const effectiveSearch = globalSearch || searchTerm;
@@ -135,11 +178,11 @@ export default function Users({ globalSearch, currentRole }) {
         </div>
       )}
 
-      {/* Quick Summary Cards (Clickable Filter Controls) */}
+      {/* Quick Summary Cards (Calculated directly from Database) */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <KpiCard
           title="Total Registered"
-          value="12,480"
+          value={isLoading ? '...' : users.length.toString()}
           icon={UsersIcon}
           color="slate"
           valueColor="text-slate-900"
@@ -149,12 +192,11 @@ export default function Users({ globalSearch, currentRole }) {
             setRoleFilter('ALL');
             setSearchTerm('');
           }}
-          subtitle="Show all"
+          subtitle="Real DB Users"
         />
         <KpiCard
-          title="Active Today"
-          value="9,850"
-          change="+8.6%"
+          title="Active Users"
+          value={isLoading ? '...' : users.filter((u) => u.status === 'Active').length.toString()}
           icon={UserCheck}
           color="emerald"
           valueColor="text-emerald-600"
@@ -163,25 +205,24 @@ export default function Users({ globalSearch, currentRole }) {
             setStatusFilter((prev) => (prev === 'ACTIVE' ? 'ALL' : 'ACTIVE'));
             setRoleFilter('ALL');
           }}
-          subtitle="Filter active"
+          subtitle="Active status"
         />
         <KpiCard
-          title="Marketplace Creators"
-          value="184"
-          change="+12"
+          title="Admins & Staff"
+          value={isLoading ? '...' : users.filter((u) => u.role === 'Super Admin' || u.role === 'Admin').length.toString()}
           icon={Sparkles}
           color="blue"
           valueColor="text-blue-600"
-          isActive={roleFilter === 'CREATOR'}
+          isActive={roleFilter === 'ADMIN'}
           onClick={() => {
-            setRoleFilter((prev) => (prev === 'CREATOR' ? 'ALL' : 'CREATOR'));
+            setRoleFilter((prev) => (prev === 'ADMIN' ? 'ALL' : 'ADMIN'));
             setStatusFilter('ALL');
           }}
-          subtitle="Filter creators"
+          subtitle="Admin privileges"
         />
         <KpiCard
           title="Suspended / Flagged"
-          value="14"
+          value={isLoading ? '...' : users.filter((u) => u.status === 'Suspended').length.toString()}
           icon={AlertTriangle}
           color="rose"
           valueColor="text-rose-600"
@@ -190,7 +231,7 @@ export default function Users({ globalSearch, currentRole }) {
             setStatusFilter((prev) => (prev === 'SUSPENDED' ? 'ALL' : 'SUSPENDED'));
             setRoleFilter('ALL');
           }}
-          subtitle="Filter flagged"
+          subtitle="Suspended accounts"
         />
       </div>
 
@@ -264,7 +305,7 @@ export default function Users({ globalSearch, currentRole }) {
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 font-bold flex items-center justify-center text-xs">
-                          {user.name.split(' ').map((n) => n[0]).join('')}
+                          {(user.name || 'User').split(' ').filter(Boolean).map((n) => n[0]).join('').slice(0, 2).toUpperCase() || 'U'}
                         </div>
                         <div>
                           <p className="font-bold text-slate-900">{user.name}</p>

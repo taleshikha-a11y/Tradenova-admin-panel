@@ -1,96 +1,30 @@
 {
   "summary": {
-    "totalRevenue": "₹ 4,82,300",
-    "monthlyRecurring": "₹ 3,45,000",
-    "successfulTxns": 1284,
-    "pendingTxns": 14,
-    "refundedAmount": "₹ 4,998"
+    "totalRevenue": "₹ 0",
+    "monthlyRecurring": "₹ 0",
+    "successfulTxns": 0,
+    "pendingTxns": 0,
+    "refundedAmount": "₹ 0"
   },
   "plans": [
     {
       "name": "Standard Algo",
       "price": "₹ 999/mo",
-      "subscribers": 542,
+      "subscribers": 0,
       "features": ["Up to 3 Active Deployments", "1 Broker Connection", "10 Backtests / Day"]
     },
     {
       "name": "Pro Algo Plan",
       "price": "₹ 1,999/mo",
-      "subscribers": 618,
+      "subscribers": 0,
       "features": ["Up to 10 Active Deployments", "3 Broker Connections", "Unlimited Backtesting", "Real-time Alerts"]
     },
     {
       "name": "Creator Pro",
       "price": "₹ 4,999/mo",
-      "subscribers": 124,
+      "subscribers": 0,
       "features": ["Marketplace Publishing", "Subscriber Analytics", "Dedicated Priority Worker Queue", "Custom Webhook Access"]
     }
   ],
-  "transactions": [
-    {
-      "id": "TXN-88401",
-      "user": "Rahul Sharma",
-      "email": "rahul.sharma@gmail.com",
-      "plan": "Pro Algo Plan",
-      "amount": "₹ 1,999",
-      "gateway": "Razorpay",
-      "gatewayRef": "pay_Oa919XbKl881",
-      "status": "Success",
-      "webhookVerified": true,
-      "date": "05 Oct 2026, 10:14 AM",
-      "invoice": "INV-2026-0891"
-    },
-    {
-      "id": "TXN-88400",
-      "user": "Sneha Roy",
-      "email": "sneha.roy@finvantage.com",
-      "plan": "Creator Pro",
-      "amount": "₹ 4,999",
-      "gateway": "Razorpay",
-      "gatewayRef": "pay_Oa891MbKq772",
-      "status": "Success",
-      "webhookVerified": true,
-      "date": "04 Oct 2026, 03:22 PM",
-      "invoice": "INV-2026-0890"
-    },
-    {
-      "id": "TXN-88399",
-      "user": "Amit Kumar",
-      "email": "amit.kumar99@yahoo.com",
-      "plan": "Standard Algo",
-      "amount": "₹ 999",
-      "gateway": "Razorpay",
-      "gatewayRef": "pay_Oa711ZzXp112",
-      "status": "Success",
-      "webhookVerified": true,
-      "date": "04 Oct 2026, 11:05 AM",
-      "invoice": "INV-2026-0889"
-    },
-    {
-      "id": "TXN-88398",
-      "user": "Vikram Patel",
-      "email": "vikram.patel@rediffmail.com",
-      "plan": "Pro Algo Plan",
-      "amount": "₹ 1,999",
-      "gateway": "Razorpay",
-      "gatewayRef": "pay_Oa602QqYy331",
-      "status": "Refunded",
-      "webhookVerified": true,
-      "date": "03 Oct 2026, 05:40 PM",
-      "invoice": "INV-2026-0888"
-    },
-    {
-      "id": "TXN-88397",
-      "user": "Karan Malhotra",
-      "email": "karan.m@equitypulse.org",
-      "plan": "Standard Algo",
-      "amount": "₹ 999",
-      "gateway": "Razorpay",
-      "gatewayRef": "pay_Oa590FfMm994",
-      "status": "Pending",
-      "webhookVerified": false,
-      "date": "03 Oct 2026, 01:10 PM",
-      "invoice": "INV-2026-0887"
-    }
-  ]
+  "transactions": []
 }

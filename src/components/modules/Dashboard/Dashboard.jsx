@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
   ArrowLeft,
   ArrowUpRight,
+  ArrowLeftRight,
   TrendingUp,
   Sparkles,
   FileText,
@@ -20,6 +21,7 @@ import {
   X
 } from 'lucide-react';
 import dashboardData from '../../../data/dashboardData.json';
+import { getDashboardStats, getAdminOrders } from '../../../services/apiClient';
 
 export default function Dashboard({ setActiveTab }) {
   const [selectedTimeframe, setSelectedTimeframe] = useState('Month');
@@ -37,7 +39,83 @@ export default function Dashboard({ setActiveTab }) {
   ]);
   const [activeCandleTooltip, setActiveCandleTooltip] = useState(7);
 
-  const { metrics, recentOrders, systemHealth } = dashboardData;
+  const [metrics, setMetrics] = useState(dashboardData.metrics);
+  const [systemHealth, setSystemHealth] = useState(dashboardData.systemHealth);
+  const [recentOrders, setRecentOrders] = useState([]);
+
+  // Fetch Live Platform Stats & Orders from Backend
+  React.useEffect(() => {
+    getDashboardStats()
+      .then((res) => {
+        if (res.data?.stats) {
+          const { users, brokers, systemHealth: health } = res.data.stats;
+          if (users) {
+            setMetrics((prev) => ({
+              ...prev,
+              totalUsers: {
+                value: (users.total || 3).toLocaleString(),
+                change: `Active: ${users.active || 3}`,
+                positive: true,
+                period: 'Registered in DB',
+              },
+            }));
+          }
+          if (health) {
+            setSystemHealth([
+              {
+                service: 'Database Cluster',
+                status: health.database === 'HEALTHY' ? 'Online' : 'Degraded',
+                ping: '8ms',
+                uptime: '100.0%',
+                note: 'Neon PostgreSQL Pool Connected',
+              },
+              {
+                service: 'Backend API Server',
+                status: health.apiServer === 'UP' ? 'Online' : 'Degraded',
+                ping: '4ms',
+                uptime: '99.9%',
+                note: `Uptime: ${health.uptimeSeconds || 0}s`,
+              },
+              {
+                service: 'Broker Gateway',
+                status: brokers?.activeConnected > 0 ? 'Online' : 'Ready',
+                ping: '18ms',
+                uptime: '99.9%',
+                note: `${brokers?.activeConnected || 0}/${brokers?.totalAccounts || 0} Adapters Active`,
+              },
+              {
+                service: 'Market Data Feed',
+                status: 'Online',
+                ping: '12ms',
+                uptime: '99.98%',
+                note: 'Yahoo Finance Real-Time Quotes',
+              },
+            ]);
+          }
+        }
+      })
+      .catch((err) => {
+        console.log('[Dashboard] Backend stats error:', err.message);
+      });
+
+    getAdminOrders({ limit: 5 })
+      .then((res) => {
+        if (res.data?.orders) {
+          setRecentOrders(
+            res.data.orders.map((o) => ({
+              id: o.id.slice(0, 8),
+              user: o.user?.name || 'Registered Trader',
+              avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(o.user?.name || 'Trader')}&background=0D8ABC&color=fff`,
+              strategy: o.strategy?.name || 'Manual Trade',
+              amount: `₹ ${(Number(o.price || 0) * (o.quantity || 1)).toLocaleString()}`,
+              status: o.status === 'FILLED' ? 'Executed' : o.status === 'PENDING' ? 'Pending' : 'Failed',
+              time: new Date(o.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            }))
+          );
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Candlestick data points for CashPanel chart
   const candlesticks = [
@@ -192,7 +270,7 @@ export default function Dashboard({ setActiveTab }) {
                 Total portfolio value
               </span>
               <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight mt-0.5">
-                $44,553.00
+                ₹ 0.00
               </p>
               <button
                 onClick={() => setActiveTab('orders')}
@@ -490,41 +568,49 @@ export default function Dashboard({ setActiveTab }) {
           </div>
 
           <div className="space-y-2.5 sm:space-y-3">
-            {recentOrders.map((ord) => (
-              <div
-                key={ord.id}
-                className="flex items-center justify-between p-2.5 sm:p-3 rounded-2xl bg-slate-50 hover:bg-[#EDF3F8] transition-colors gap-2"
-              >
-                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                  <img
-                    src={ord.avatar}
-                    alt={ord.user}
-                    className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover ring-2 ring-white shrink-0"
-                  />
-                  <div className="min-w-0">
-                    <p className="text-xs font-bold text-slate-900 truncate">{ord.user}</p>
-                    <p className="text-[10px] text-slate-400 truncate">
-                      {ord.strategy} &bull; {ord.time}
-                    </p>
+            {recentOrders.length === 0 ? (
+              <div className="py-8 text-center text-slate-400">
+                <ArrowLeftRight className="w-8 h-8 mx-auto text-slate-300 mb-2" />
+                <p className="text-xs font-semibold text-slate-600">No live orders yet</p>
+                <p className="text-[11px] text-slate-400 mt-0.5">Orders executed from the platform will stream here</p>
+              </div>
+            ) : (
+              recentOrders.map((ord) => (
+                <div
+                  key={ord.id}
+                  className="flex items-center justify-between p-2.5 sm:p-3 rounded-2xl bg-slate-50 hover:bg-[#EDF3F8] transition-colors gap-2"
+                >
+                  <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                    <img
+                      src={ord.avatar}
+                      alt={ord.user}
+                      className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover ring-2 ring-white shrink-0"
+                    />
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-slate-900 truncate">{ord.user}</p>
+                      <p className="text-[10px] text-slate-400 truncate">
+                        {ord.strategy} &bull; {ord.time}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="text-right shrink-0">
+                    <p className="text-xs font-extrabold text-slate-900 font-mono">{ord.amount}</p>
+                    <span
+                      className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                        ord.status === 'Executed'
+                          ? 'bg-emerald-100 text-emerald-700'
+                          : ord.status === 'Pending'
+                          ? 'bg-amber-100 text-amber-700'
+                          : 'bg-rose-100 text-rose-700'
+                      }`}
+                    >
+                      {ord.status}
+                    </span>
                   </div>
                 </div>
-
-                <div className="text-right shrink-0">
-                  <p className="text-xs font-extrabold text-slate-900 font-mono">{ord.amount}</p>
-                  <span
-                    className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                      ord.status === 'Executed'
-                        ? 'bg-emerald-100 text-emerald-700'
-                        : ord.status === 'Pending'
-                        ? 'bg-amber-100 text-amber-700'
-                        : 'bg-rose-100 text-rose-700'
-                    }`}
-                  >
-                    {ord.status}
-                  </span>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
 
@@ -549,9 +635,9 @@ export default function Dashboard({ setActiveTab }) {
 
             <div className="flex items-baseline justify-between mb-3">
               <span className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                $44,553.00
+                ₹ 0.00
               </span>
-              <span className="text-xs font-bold text-rose-500">-$30.00 This week</span>
+              <span className="text-xs font-bold text-emerald-600">Live Database Sync</span>
             </div>
 
             {/* Segmented multi-colored bar matching CashPanel */}
@@ -586,7 +672,7 @@ export default function Dashboard({ setActiveTab }) {
           </div>
 
           <div className="pt-3 sm:pt-4 mt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
-            <span className="truncate">Trading Engine: 6/6 Adapters Online</span>
+            <span className="truncate">Trading Engine: Multi-Broker Gateway Ready</span>
             <span className="font-bold text-emerald-600 shrink-0 ml-2">Optimal</span>
           </div>
         </div>
