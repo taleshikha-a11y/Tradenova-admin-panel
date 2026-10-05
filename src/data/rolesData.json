@@ -1,0 +1,115 @@
+{
+  "roles": [
+    {
+      "id": "ROLE_SUPER_ADMIN",
+      "name": "Super Admin",
+      "badge": "Full Access",
+      "color": "indigo",
+      "description": "Unrestricted administrative authority across all modules, emergency kill-switch, risk parameters, and user permissions.",
+      "permissions": [
+        "emergency_kill_switch",
+        "manage_users",
+        "suspend_users",
+        "review_strategies",
+        "approve_strategies",
+        "manage_brokers",
+        "route_orders",
+        "retry_orders",
+        "manage_payments",
+        "process_refunds",
+        "manage_incidents",
+        "broadcast_alerts",
+        "view_audit_logs",
+        "configure_risk_limits"
+      ]
+    },
+    {
+      "id": "ROLE_OPERATIONS",
+      "name": "Operations",
+      "badge": "Live Execution & Adapters",
+      "color": "blue",
+      "description": "Live trading engine monitoring, broker adapter connectivity, order queue reconciliation, retries, and incident responses.",
+      "permissions": [
+        "manage_brokers",
+        "route_orders",
+        "retry_orders",
+        "manage_incidents",
+        "broadcast_alerts",
+        "view_audit_logs"
+      ]
+    },
+    {
+      "id": "ROLE_COMPLIANCE",
+      "name": "Compliance / Review",
+      "badge": "Regulatory & Approvals",
+      "color": "purple",
+      "description": "Review and approve/reject marketplace algorithms, verify SEBI disclaimers, monitor KYC verifications, and audit trail scrutiny.",
+      "permissions": [
+        "review_strategies",
+        "approve_strategies",
+        "view_users",
+        "view_audit_logs"
+      ]
+    },
+    {
+      "id": "ROLE_SUPPORT",
+      "name": "Support",
+      "badge": "Customer Operations",
+      "color": "emerald",
+      "description": "User account assistance, subscription query resolution, ticket support notes, and read-only broker connection health.",
+      "permissions": [
+        "view_users",
+        "manage_users",
+        "view_strategies",
+        "view_orders",
+        "view_payments"
+      ]
+    },
+    {
+      "id": "ROLE_FINANCE",
+      "name": "Finance",
+      "badge": "Billing & Reconciliation",
+      "color": "amber",
+      "description": "Subscription payments reconciliation, payment gateway webhooks (Razorpay/Stripe), invoice generation, and refunds.",
+      "permissions": [
+        "view_payments",
+        "manage_payments",
+        "process_refunds",
+        "view_audit_logs"
+      ]
+    },
+    {
+      "id": "ROLE_READ_ONLY",
+      "name": "Read Only",
+      "badge": "Audit & Analytics",
+      "color": "slate",
+      "description": "Read-only access for internal auditors and observers. Mutation or emergency intervention controls are disabled.",
+      "permissions": [
+        "view_dashboard",
+        "view_users",
+        "view_strategies",
+        "view_brokers",
+        "view_orders",
+        "view_payments",
+        "view_incidents",
+        "view_audit_logs"
+      ]
+    }
+  ],
+  "permissionLabels": {
+    "emergency_kill_switch": "Emergency Kill Switch",
+    "manage_users": "User Management & Status",
+    "suspend_users": "Suspend / Unsuspend Users",
+    "review_strategies": "Inspect Strategy Logic",
+    "approve_strategies": "Approve / Flag Marketplace Strategies",
+    "manage_brokers": "Toggle Broker Adapters",
+    "route_orders": "Live Order Execution Monitor",
+    "retry_orders": "Retry / Requeue Orders",
+    "manage_payments": "Payment & Subscription Plans",
+    "process_refunds": "Process Refunds",
+    "manage_incidents": "Incident & Outage Management",
+    "broadcast_alerts": "Broadcast System Outage Banners",
+    "view_audit_logs": "Immutable Audit Trail Access",
+    "configure_risk_limits": "Configure Risk Engine Limits"
+  }
+}

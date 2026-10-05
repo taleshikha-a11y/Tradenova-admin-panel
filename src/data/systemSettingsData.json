@@ -1,0 +1,36 @@
+{
+  "killSwitch": {
+    "isActive": false,
+    "lastTriggered": "Never in Production",
+    "authorizedBy": "Super Admin only",
+    "status": "Armed & Standby",
+    "description": "Emergency halt: Instantly cancel all pending open orders across all connected brokers and pause strategy worker evaluation."
+  },
+  "riskEngine": {
+    "maxOrderValuePerTrade": "1000000",
+    "maxDailyLossPerUser": "200000",
+    "maxAllowedSlippagePercent": "0.5",
+    "circuitBreakerMaxRetries": 3,
+    "staleFeedThresholdMs": 5000,
+    "orderRateLimitPerSec": 20
+  },
+  "tradingSession": {
+    "marketOpenTime": "09:15",
+    "autoSquareOffTime": "15:15",
+    "marketCloseTime": "15:30",
+    "paperTradingEnabled": true,
+    "liveTradingEnabled": true,
+    "maintenanceMode": false
+  },
+  "notificationChannels": {
+    "smsOtpEnabled": true,
+    "emailAlertsEnabled": true,
+    "inAppPushEnabled": true,
+    "telegramWebhookEnabled": true
+  },
+  "broadcastAnnouncement": {
+    "isActive": false,
+    "type": "info",
+    "message": "Market opens normally at 09:15 AM. All broker adapters are synchronized."
+  }
+}

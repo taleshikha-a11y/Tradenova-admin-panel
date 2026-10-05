@@ -1,0 +1,150 @@
+{
+  "metrics": {
+    "totalUsers": {
+      "value": "12,480",
+      "change": "+12%",
+      "positive": true,
+      "period": "vs last 7 days"
+    },
+    "totalStrategies": {
+      "value": "342",
+      "change": "+16%",
+      "positive": true,
+      "period": "vs last 7 days"
+    },
+    "totalTrades": {
+      "value": "28,640",
+      "change": "+22%",
+      "positive": true,
+      "period": "vs last 7 days"
+    },
+    "revenue": {
+      "value": "₹ 4,82,300",
+      "change": "+16%",
+      "positive": true,
+      "period": "vs last 7 days"
+    }
+  },
+  "portfolioSummary": {
+    "totalAUM": "₹ 18,45,50,000",
+    "activeDeployments": 874,
+    "liveExecutionRate": "99.84%",
+    "queueLagMs": 4
+  },
+  "usersGrowth": [
+    { "day": "Mon", "users": 10200, "active": 8100 },
+    { "day": "Tue", "users": 10850, "active": 8750 },
+    { "day": "Wed", "users": 11400, "active": 9200 },
+    { "day": "Thu", "users": 11900, "active": 9650 },
+    { "day": "Fri", "users": 12150, "active": 10100 },
+    { "day": "Sat", "users": 12380, "active": 9400 },
+    { "day": "Sun", "users": 12480, "active": 9850 }
+  ],
+  "tradeVolume": [
+    { "day": "Mon", "volume": 18500, "fillRate": 99.2 },
+    { "day": "Tue", "volume": 24200, "fillRate": 99.5 },
+    { "day": "Wed", "volume": 21800, "fillRate": 99.1 },
+    { "day": "Thu", "volume": 27400, "fillRate": 99.7 },
+    { "day": "Fri", "volume": 28640, "fillRate": 99.6 },
+    { "day": "Sat", "volume": 6800, "fillRate": 100.0 },
+    { "day": "Sun", "volume": 7200, "fillRate": 100.0 }
+  ],
+  "recentOrders": [
+    {
+      "id": "ORD-94812",
+      "user": "Rahul Sharma",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
+      "strategy": "RSI Momentum Pro",
+      "type": "Buy",
+      "instrument": "NIFTY 24500 CE",
+      "qty": 75,
+      "amount": "₹ 14,250",
+      "status": "Executed",
+      "time": "12:45 PM"
+    },
+    {
+      "id": "ORD-94811",
+      "user": "Priya Mishra",
+      "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80",
+      "strategy": "Breakout Hunter",
+      "type": "Sell",
+      "instrument": "BANKNIFTY 52000 PE",
+      "qty": 30,
+      "amount": "₹ 28,900",
+      "status": "Executed",
+      "time": "11:32 AM"
+    },
+    {
+      "id": "ORD-94810",
+      "user": "Amit Kumar",
+      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80",
+      "strategy": "Swing Trade Master",
+      "type": "Buy",
+      "instrument": "RELIANCE EQ",
+      "qty": 50,
+      "amount": "₹ 9,800",
+      "status": "Pending",
+      "time": "10:31 AM"
+    },
+    {
+      "id": "ORD-94809",
+      "user": "Sneha Roy",
+      "avatar": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&auto=format&fit=crop&q=80",
+      "strategy": "Price Action Pro",
+      "type": "Sell",
+      "instrument": "TCS EQ",
+      "qty": 25,
+      "amount": "₹ 45,100",
+      "status": "Executed",
+      "time": "09:50 AM"
+    },
+    {
+      "id": "ORD-94808",
+      "user": "Vikram Patel",
+      "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80",
+      "strategy": "Option Straddle 920",
+      "type": "Buy",
+      "instrument": "FINNIFTY 23400 CE",
+      "qty": 80,
+      "amount": "₹ 31,200",
+      "status": "Failed",
+      "time": "09:15 AM"
+    }
+  ],
+  "systemHealth": [
+    {
+      "service": "Market Data Feed",
+      "status": "Online",
+      "ping": "12ms",
+      "uptime": "99.98%",
+      "note": "NSE/BSE Tick Feed Streaming"
+    },
+    {
+      "service": "Broker APIs",
+      "status": "Online",
+      "ping": "38ms",
+      "uptime": "99.94%",
+      "note": "6 of 6 Adapters Active"
+    },
+    {
+      "service": "Trading Engine",
+      "status": "Online",
+      "ping": "4ms",
+      "uptime": "99.99%",
+      "note": "Worker queues synchronized"
+    },
+    {
+      "service": "Database Cluster",
+      "status": "Online",
+      "ping": "8ms",
+      "uptime": "100.0%",
+      "note": "PostgreSQL Primary + Replica OK"
+    }
+  ],
+  "quickActions": [
+    { "title": "Manage Users", "target": "Users", "icon": "Users" },
+    { "title": "View All Strategies", "target": "Strategies", "icon": "Layers" },
+    { "title": "Check Orders", "target": "Orders", "icon": "ListOrdered" },
+    { "title": "System Logs", "target": "Audit Logs", "icon": "ShieldCheck" }
+  ]
+}
